@@ -3,6 +3,7 @@ import express from "express"
 import bodyParser from "body-parser"
 import cors from "cors"
 import bcrypt from "bcrypt-nodejs"
+import uuid from "uuid"
 
 // Express setup, including JSON body parsing.
 const app = express()
@@ -28,7 +29,8 @@ mongoose.connection.once("open", () => console.log("Connected to mongodb"))
 const User = mongoose.model("User", {
   user: String,
   email: String,
-  password: String
+  password: String,
+  accessToken: { type: String, default: () => uuid() }
 })
 //
 
