@@ -25,6 +25,11 @@ mongoose.connection.once("open", () => console.log("Connected to mongodb"))
 
 //
 // Define a model here.
+const User = mongoose.model("User", {
+  user: String,
+  email: String,
+  password: String
+})
 //
 
 // Example root endpoint to get started with
@@ -39,5 +44,18 @@ app.get("/", (req, res) => {
 })
 
 // Add more endpoints here!
+app.post("/users", (req, res) => {
+  const user = new User(req.body)
+
+  user.save()
+    .then(() => { res.status(201).send("Product created") })
+    .catch(err => { res.status(400).send(err) })
+})
+
+app.get("/users", (req, res) => {
+  User.find().then(allUsers => {
+    res.json(allUsers)
+  })
+})
 
 app.listen(8080, () => console.log("Products API listening on port 8080!"))
