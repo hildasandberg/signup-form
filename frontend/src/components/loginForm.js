@@ -7,23 +7,17 @@ class LoginForm extends React.Component {
     super(props)
     this.state = {
       user: "",
-      password: ""
+      password: "",
     }
   }
 
-  newUser = event => {
+  userEntry = event => {
     this.setState({
       user: event.target.value
     })
   }
 
-  newEmail = event => {
-    this.setState({
-      email: event.target.value
-    })
-  }
-
-  newPassword = event => {
+  passwordEntry = event => {
     this.setState({
       password: event.target.value
     })
@@ -31,17 +25,28 @@ class LoginForm extends React.Component {
 
   handleSubmit = event => {
     event.preventDefault()
-    fetch("http://localhost:8080/users", {
+    fetch("http://localhost:8080/login", {
       method: "POST",
       headers: {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json"
       },
       body: JSON.stringify(this.state)
-    }).then(response => response.json())
-    this.setState({
-      user: "",
-      password: ""
+    }).then(response => {
+      if (response.ok) {
+        return response.json()
+          .then(json => {
+            console.log("inloggning lyckades", json)
+            localStorage.setItem("token", json.accessToken)
+            localStorage.setItem("userId", json.userId)
+            this.setState({
+              user: "",
+              password: ""
+            })
+          })
+      }
+    }).catch(err => {
+      console.log("Login failed", err)
     })
   }
 
@@ -52,11 +57,11 @@ class LoginForm extends React.Component {
           {/* {this.state.complete && <Redirect to="/" />} */}
           <h1>Log In: </h1>
           <form onSubmit={this.handleSubmit}>
-            <div className="input-box">User name: <input className="input-value" type="text" placeholder="Namn:" value={this.state.user} onChange={this.newUser} /></div>
-            <div className="input-box">password: <input className="input-value" type="text" placeholder="Typ:" value={this.state.password} onChange={this.newPassword} /></div>
+            <div className="input-box">User name: <input required className="input-value" type="text" placeholder="username:" value={this.state.user} onChange={this.userEntry} /></div>
+            <div className="input-box">password: <input required className="input-value" type="text" placeholder="password:" value={this.state.password} onChange={this.passwordEntry} /></div>
 
             <div className="submit-container">
-              <input className="btn submit" type="submit" value="Log in" />
+              <input required className="btn submit" type="submit" value="Log in" />
             </div>
 
           </form>

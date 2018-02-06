@@ -30,7 +30,10 @@ const User = mongoose.model("User", {
   user: String,
   email: String,
   password: String,
-  accessToken: { type: String, default: () => uuid() }
+  accessToken: {
+    type: String,
+    default: () => uuid()
+  }
 })
 //
 
@@ -38,25 +41,58 @@ const User = mongoose.model("User", {
 app.get("/", (req, res) => {
   const password = "supersecretpassword"
   const hash = bcrypt.hashSync(password)
-
-  // bcrypt.compareSync("supersecretpassword", hash) // true
-  // bcrypt.compareSync("incorrectpassword", hash) // false
-
   res.send(`Signup form api. Here's an example of an encrypted password: ${hash}`)
 })
+
+// Middleware to check the token passed in the headers.
+const findUser = (req, res, next) => {
+  User.findById(req.params.id).then(user => {
+    if (user.accessToken === req.headers.token) {
+      req.user = user
+      next() // Next middleware
+    } else {
+      res.status(401).send("Unauthenticated")
+    }
+  })
+}
+
+// Mounting middleware (not envoking it)
+app.use("/users/:id", findUser)
+
+// // Return information about the logged in user
+// app.get("/users/id", (req, res) => {
+//   const { token, ...otherUserFields } = req.user
+//   res.json(otherUserFields)
+// })
 
 // Add more endpoints here!
 app.post("/users", (req, res) => {
   const user = new User(req.body)
-
+  user.password = bcrypt.hashSync(user.password) // Password encryption
   user.save()
-    .then(() => { res.status(201).send("Product created") })
+    .then(() => { res.status(201).send("User created") })
     .catch(err => { res.status(400).send(err) })
 })
 
 app.get("/users", (req, res) => {
   User.find().then(allUsers => {
     res.json(allUsers)
+  })
+})
+
+app.get("/authenticate", (req, res) => {
+  // User.find().then(allUsers => {
+  //   res.json(allUsers)
+  // })
+})
+
+app.post("/login", (req, res) => {
+  User.findOne({ user: req.body.user }).then(user => {
+    if (user && bcrypt.compareSync(req.body.password, user.password)) {
+      res.json({ message: "Success!", accessToken: user.accessToken, userId: user._id, email: user.email })
+    } else {
+      res.status(401).json({ message: "Authentication failure" })
+    }
   })
 })
 

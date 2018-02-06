@@ -39,13 +39,21 @@ class Form extends React.Component {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(this.state)
-    }).then(response => response.json())
-    this.setState({
-      user: "",
-      email: "",
-      password: ""
+    }).then(response => {
+      this.setState({
+        user: "",
+        email: "",
+        password: ""
+      })
     })
   }
+
+  // .then(response => response.json())
+  // this.setState({
+  //   user: "",
+  //   email: "",
+  //   password: ""
+  // })
 
   render() {
     return (
@@ -54,9 +62,9 @@ class Form extends React.Component {
           {/* {this.state.complete && <Redirect to="/" />} */}
           <h1>Sign up: </h1>
           <form onSubmit={this.handleSubmit}>
-            <div className="input-box">User name: <input className="input-value" type="text" placeholder="Namn:" value={this.state.user} onChange={this.newUser} /></div>
-            <div className="input-box">Email : <input className="input-value" type="text" placeholder="Id:" value={this.state.email} onChange={this.newEmail} /></div>
-            <div className="input-box">password: <input className="input-value" type="text" placeholder="Typ:" value={this.state.password} onChange={this.newPassword} /></div>
+            <div className="input-box">User name: <input required className="input-value" type="text" placeholder="username:" value={this.state.user} onChange={this.newUser} /></div>
+            <div className="input-box">Email : <input required className="input-value" type="text" placeholder="email:" value={this.state.email} onChange={this.newEmail} /></div>
+            <div className="input-box">password: <input required className="input-value" type="text" placeholder="password:" value={this.state.password} onChange={this.newPassword} /></div>
 
             <div className="submit-container">
               <input className="btn submit" type="submit" value="Register" />
